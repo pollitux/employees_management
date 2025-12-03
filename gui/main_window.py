@@ -11,6 +11,8 @@ from PyQt6.QtWidgets import (
 
 from PyQt6.QtWidgets import QToolBar, QMenu
 from PyQt6.QtGui import QIcon, QAction
+# set size for components
+from PyQt6.QtCore import QSize
 
 from employees_management.domain.models import Employee
 from employees_management.application.employee_service import EmployeeService
@@ -112,6 +114,11 @@ class MainWindow(QMainWindow):
 
         toolbar = QToolBar("Main Toolbar")
         toolbar.setMovable(False)
+        # Set icon size (default might be too large on macOS)
+        toolbar.setIconSize(QSize(20, 20))
+        # options: 16x16, 20x20, 24x24, 32x32
+
+        self.addToolBar(toolbar)
         self.addToolBar(toolbar)
 
         # Reports Menu
