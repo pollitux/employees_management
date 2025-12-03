@@ -1,21 +1,77 @@
-# Employees Management System (Python + PyQt6 + SQLAlchemy + SQLite/MySQL)
+# Employees Management System  
+### Final Project – Technologies of Programming  
+### Python + PyQt6 + SQLAlchemy + Clean Architecture + SOLID
 
-This project is a complete employee management desktop application built with:
+This project was developed as the **final assignment for the course "Technologies of Programming"**.  
+Its main purpose is **educational**, aiming to help students understand and apply:
 
-- **Python 3**
-- **PyQt6** for the graphical interface
-- **SQLAlchemy ORM**
-- **SQLite or MySQL** (configurable)
-- **SOLID Principles**
-- **Repository Pattern (Interfaces + Implementations)**
-- **Clean Architecture Style**
-- **Matplotlib for statistical charts**
+- SOLID principles  
+- Clean Architecture  
+- Good programming practices  
+- PEP 8 style conventions  
+- Desktop application development with PyQt6  
+- SQLAlchemy ORM and repository patterns  
+- Separation of responsibilities and decoupled design  
 
-The system supports **Employees**, **Municipalities**, **Positions**, and **Salary Charts**, each with full CRUD operations.
+The result is a fully working **desktop management system** for employees, positions, and municipalities, including statistics shown in charts.
 
 ---
 
-## 📁 Project Structure
+## Educational Goals
+
+This project is designed to teach students how to build professional, maintainable and modular software.
+
+### Apply **SOLID principles**
+
+- **S**ingle Responsibility Principle  
+- **O**pen/Closed Principle  
+- **L**iskov Substitution Principle  
+- **I**nterface Segregation Principle  
+- **D**ependency Inversion Principle  
+ 
+Official reference:  
+https://en.wikipedia.org/wiki/SOLID
+
+ Easy-to-understand explanation:  
+https://contabo.com/blog/es/que-son-los-principios-solid-en-programacion/
+
+---
+
+### Follow **Clean Architecture**
+
+This project separates responsibilities into 4 layers:
+
+1. **Domain** – Entities and repository interfaces  
+2. **Application** – Use cases / business logic  
+3. **Infrastructure** – ORM, database engine, repository implementations  
+4. **GUI** – PyQt6 windows, dialogs and charts  
+
+This design ensures:
+
+- High testability  
+- Low coupling  
+- Clear scalability  
+- Independence from frameworks  
+
+---
+
+### Follow **PEP 8 and Clean Code practices**
+
+ PEP 8 official style guide:  
+https://peps.python.org/pep-0008/
+
+Applied aspects:
+
+- snake_case for functions and variables  
+- PascalCase for classes  
+- Clear, simple English comments  
+- Line length and spacing guidelines  
+- Organized imports  
+- Small, readable functions  
+
+---
+
+## Project Structure
 
 ```
 employees_management/
@@ -43,7 +99,6 @@ employees_management/
 │   └── window_salary.py
 │
 ├── icons/
-│   └── (PNG/SVG icons used by the app)
 │
 ├── infrastructure/
 │   ├── db.py
@@ -55,98 +110,119 @@ employees_management/
 │   ├── es.py
 │   └── __init__.py
 │
-├── employees.db        # SQLite database (optional)
-├── main.py             # Application entrypoint
+├── employees.db
+├── main.py
 ├── README.md
 └── requirements.txt
 ```
 
 ---
 
-## 🧱 Architecture Overview
+## Architecture Overview
 
-This project follows a **clean layered architecture**:
+### **Domain Layer**
+- Pure Python entities  
+- Repository interfaces  
+- No external dependencies  
 
-### 1️⃣ Domain Layer
-Located in `domain/`
+### **Application Layer**
+- Contains the business logic  
+- Services depend on **interfaces**, not implementations  
+- Applies the **Dependency Inversion Principle**  
 
-- Contains **entities/models** (Employee, Municipality, Position)
-- Defines **repository interfaces**
-- Pure Python, no framework dependencies
+### **Infrastructure Layer**
+- Implements repositories using SQLAlchemy  
+- Contains database configuration and ORM logic  
 
-### 2️⃣ Application Layer
-Located in `application/`
-
-- Contains **use cases / business logic**
-- Services depend **only on repository interfaces**
-
-### 3️⃣ Infrastructure Layer
-Located in `infrastructure/`
-
-- Implements repositories using SQLAlchemy ORM
-- Manages DB engine + sessions
-
-### 4️⃣ GUI Layer (PyQt6)
-Located in `gui/`
-
-Contains all user interface windows with full CRUD and charts.
+### **GUI Layer (PyQt6)**
+- CRUD windows for employees, positions, municipalities  
+- Salary management window  
+- Chart window using Matplotlib  
 
 ---
 
-## 🛢 Database Configuration
+## Database Configuration
 
-### ✔ SQLite (default)
-
+### SQLite (default)
 ```
 DATABASE_URL = "sqlite:///employees.db"
 ```
 
-### ✔ MySQL (optional)
-
+### MySQL (optional)
 ```
 DATABASE_URL = "mysql+pymysql://user:password@localhost/employees_db"
 ```
 
-Tables auto-create on startup.
+Tables are automatically created on first run.
 
 ---
 
-## 🚀 Features
+## Features
 
-### Employees
+### Employees Module
+- Create, edit and delete employees  
+- Assign position and municipality  
+- Validate data before saving  
+- Salary window included  
+
+### Municipalities Module
 - Full CRUD  
-- Assign position/municipality  
-- Integrated salary window  
+- Integrated with employee creation  
 
-### Municipalities & Positions
+### Positions Module
 - Full CRUD  
-- Used by employee module  
+- Used inside employee forms  
 
-### Charts
+### Statistics & Charts
 - Bar chart of employees per position  
-- Labels added above bars
+- Labels displayed above bars  
+- Built using embedded Matplotlib  
 
 ---
 
-## 📦 Installation
+## Installation
 
 ```
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate   # macOS / Linux
+.venv\Scripts\activate      # Windows
+
 pip install -r requirements.txt
+```
+
+---
+
+## Run the application
+
+```
 python main.py
 ```
 
 ---
 
-## ▶️ Run Application
+## Code Quality
 
-```
-python main.py
-```
+The project strictly follows:
+
+- PEP 8  
+- English-based documentation  
+- Single Responsibility per class  
+- SOLID principle compliance  
+- Clean and modular folder structure  
+
+This ensures code is readable, maintainable, and aligned with industry expectations.
 
 ---
 
-## 📝 License
+## Academic Purpose
 
-MIT License.
+This repository is meant to serve as:
+
+- A **learning tool** for applying advanced programming principles  
+- A **reference implementation** for future students  
+- A **demonstration project** for software engineering portfolios  
+- An example of how to structure real-world desktop applications  
+
+It is not intended for production use, but rather for **educational analysis and classroom presentations**.
+
+---
