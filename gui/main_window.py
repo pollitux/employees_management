@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
     QLineEdit, QLabel
 )
 
-from PyQt6.QtWidgets import QToolBar
+from PyQt6.QtWidgets import QToolBar, QMenu
 from PyQt6.QtGui import QIcon, QAction
 
 from employees_management.domain.models import Employee
@@ -108,21 +108,50 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(buttons_layout)
 
     def _setup_toolbar(self) -> None:
-        """Creates the top toolbar for reports and other actions."""
+        """Creates the top toolbar with menu actions."""
 
         toolbar = QToolBar("Main Toolbar")
-        toolbar.setMovable(False)  # optional: keep it fixed
+        toolbar.setMovable(False)
         self.addToolBar(toolbar)
 
-        report_action = QAction(QIcon("icons/report.png"), "Reports", self)
-        report_action.setStatusTip("Open reports window")
-        report_action.triggered.connect(self._open_reports)
+        # Reports Menu
+        reports_menu = QMenu("Reports", self)
+
+        reports_by_position = QAction("Employees by Position", self)
+        reports_by_position.triggered.connect(self._open_report_employees_by_position)
+
+        reports_by_municipality = QAction("Employees by Municipality", self)
+        reports_by_municipality.triggered.connect(self._open_report_employees_by_municipality)
+
+        salary_report = QAction("Salary Summary", self)
+        salary_report.triggered.connect(self._open_report_salary)
+
+        # Add items to menu
+        reports_menu.addAction(reports_by_position)
+        reports_menu.addAction(reports_by_municipality)
+        reports_menu.addSeparator()
+        reports_menu.addAction(salary_report)
+
+        # Create toolbar button with menu
+        reports_action = QAction(QIcon("icons/report.png"), "Reports", self)
+        reports_action.setMenu(reports_menu)
+        toolbar.addAction(reports_action)
+
+        # Utils Menu
+        utils_menu = QMenu("Utils", self)
+
+        about_action = QAction("About", self)
+        about_action.triggered.connect(lambda: QMessageBox.information(self, "About", "Employee Manager v1.0"))
+
+        settings_action = QAction("Settings", self)
+        settings_action.triggered.connect(
+            lambda: QMessageBox.information(self, "Settings", "Settings window will be available soon."))
+
+        utils_menu.addAction(about_action)
+        utils_menu.addAction(settings_action)
 
         utils_action = QAction(QIcon("icons/tools.png"), "Utils", self)
-        utils_action.setStatusTip("Open utils window")
-        utils_action.triggered.connect(self._open_utils)
-
-        toolbar.addAction(report_action)
+        utils_action.setMenu(utils_menu)
         toolbar.addAction(utils_action)
 
     def _load_employees(self) -> None:
@@ -252,13 +281,14 @@ class MainWindow(QMainWindow):
         self.municipality_window = MunicipalityWindow(self._municipality_service)
         self.municipality_window.show()
 
-    def _open_reports(self) -> None:
-        """Placeholder for report window."""
-        QMessageBox.information(self, "Reports", "Report module will be added here.")
+    def _open_report_employees_by_position(self):
+        QMessageBox.information(self, "Report", "Employees by Position report will open here.")
 
-    def _open_utils(self) -> None:
-        """Placeholder for utils window."""
-        QMessageBox.information(self, "Utils", "Utils module will be added here.")
+    def _open_report_employees_by_municipality(self):
+        QMessageBox.information(self, "Report", "Employees by Municipality report will open here.")
+
+    def _open_report_salary(self):
+        QMessageBox.information(self, "Report", "Salary summary report will open here.")
 
     def _show_info(self, message: str) -> None:
         QMessageBox.information(self, "Info", message)
