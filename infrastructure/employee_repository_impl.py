@@ -62,6 +62,7 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
         Returns:
             Employee: The persisted Employee instance with ID assigned.
         """
+        self._session.add(employee)
         self._session.commit()
         self._session.refresh(employee)
         return employee

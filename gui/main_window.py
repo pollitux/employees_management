@@ -1,10 +1,16 @@
+import os
 from datetime import datetime
 from typing import Optional, List
+
+from PyQt6 import QtGui
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QTableWidget, QTableWidgetItem, QMessageBox,
     QLineEdit, QLabel
 )
+
+from PyQt6.QtWidgets import QToolBar
+from PyQt6.QtGui import QIcon, QAction
 
 from employees_management.domain.models import Employee
 from employees_management.application.employee_service import EmployeeService
@@ -40,6 +46,7 @@ class MainWindow(QMainWindow):
         self._selected_id: Optional[int] = None
         self._employees_cache: List[Employee] = []
 
+        self._setup_toolbar()
         self._setup_ui()
         self._load_employees()
 
@@ -85,6 +92,10 @@ class MainWindow(QMainWindow):
         self.btn_positions.clicked.connect(self._open_position_window)
         self.btn_municipalities.clicked.connect(self._open_municipality_window)
 
+        self.btn_add.setIcon(QtGui.QIcon("icons/add.png"))
+        self.btn_edit.setIcon(QtGui.QIcon("icons/update.png"))
+        self.btn_delete.setIcon(QtGui.QIcon("icons/delete.png"))
+
         for btn in [
             self.btn_add, self.btn_edit, self.btn_delete, self.btn_positions,
             self.btn_municipalities
@@ -95,6 +106,24 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(search_layout)
         main_layout.addWidget(self.table)
         main_layout.addLayout(buttons_layout)
+
+    def _setup_toolbar(self) -> None:
+        """Creates the top toolbar for reports and other actions."""
+
+        toolbar = QToolBar("Main Toolbar")
+        toolbar.setMovable(False)  # optional: keep it fixed
+        self.addToolBar(toolbar)
+
+        report_action = QAction(QIcon("icons/report.png"), "Reports", self)
+        report_action.setStatusTip("Open reports window")
+        report_action.triggered.connect(self._open_reports)
+
+        utils_action = QAction(QIcon("icons/tools.png"), "Utils", self)
+        utils_action.setStatusTip("Open utils window")
+        utils_action.triggered.connect(self._open_utils)
+
+        toolbar.addAction(report_action)
+        toolbar.addAction(utils_action)
 
     def _load_employees(self) -> None:
         self._employees_cache = self._employee_service.list_employees()
@@ -222,6 +251,14 @@ class MainWindow(QMainWindow):
     def _open_municipality_window(self):
         self.municipality_window = MunicipalityWindow(self._municipality_service)
         self.municipality_window.show()
+
+    def _open_reports(self) -> None:
+        """Placeholder for report window."""
+        QMessageBox.information(self, "Reports", "Report module will be added here.")
+
+    def _open_utils(self) -> None:
+        """Placeholder for utils window."""
+        QMessageBox.information(self, "Utils", "Utils module will be added here.")
 
     def _show_info(self, message: str) -> None:
         QMessageBox.information(self, "Info", message)
