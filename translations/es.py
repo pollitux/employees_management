@@ -15,6 +15,13 @@ TEXT = {
     "BTN_SALARY": "Salario",
     "BTN_POSITIONS": "Puestos",
     "BTN_MUNICIPALITIES": "Municipios",
+    # Filters
+    "FILTER_MUNICIPALITIES": "Filtrar por municipio",
+    "FILTER_ALL_MUNICIPALITIES": "Todos los municipios",
+    "FILTER_POSITION": "Filtrar por puesto",
+    "FILTER_ALL_POSITIONS": "Todos los puestos",
+    "FILTER_TYPE": "Filtrar por tipo",
+    "FILTER_ALL_TYPES": "Todos los tipos",
 
     # Groups
     "GROUP_ACTIONS": "Acciones",

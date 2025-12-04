@@ -48,7 +48,7 @@ def main() -> None:
         import_service=import_service
     )
 
-    window.resize(800, 400)
+    window.resize(800, 600)
     window.show()
 
     exit_code = app.exec()

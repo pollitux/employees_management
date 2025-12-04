@@ -6,7 +6,7 @@ from PyQt6 import QtGui
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QTableWidget, QTableWidgetItem, QMessageBox,
-    QLineEdit, QLabel
+    QLineEdit, QLabel, QComboBox
 )
 
 from PyQt6.QtWidgets import QToolBar, QMenu
@@ -75,6 +75,40 @@ class MainWindow(QMainWindow):
 
         search_layout.addWidget(search_label)
         search_layout.addWidget(self.search_edit)
+
+        # --- Filters by Position and Municipality ---
+        filter_layout = QHBoxLayout()
+
+        self.position_filter = QComboBox()
+        self.position_filter.addItem(TEXT.get("FILTER_ALL_POSITIONS", "All Positions"), None)
+        for pos in self._position_service.list_positions():
+            self.position_filter.addItem(pos.name, pos.id)
+        self.position_filter.currentIndexChanged.connect(self._apply_filter)
+
+        self.municipality_filter = QComboBox()
+        self.municipality_filter.addItem(TEXT.get("FILTER_ALL_MUNICIPALITIES", "All Municipalities"), None)
+        for mun in self._municipality_service.list_municipalities():
+            self.municipality_filter.addItem(mun.name, mun.id)
+        self.municipality_filter.currentIndexChanged.connect(self._apply_filter)
+
+        filter_layout.addWidget(QLabel(TEXT.get("FILTER_POSITION", "Filter by Position:")))
+        filter_layout.addWidget(self.position_filter)
+        filter_layout.addSpacing(20)
+        filter_layout.addWidget(QLabel(TEXT.get("FILTER_MUNICIPALITIES", "Filter by Municipalities:")))
+        filter_layout.addWidget(self.municipality_filter)
+
+        self.type_filter = QComboBox()
+        self.type_filter.addItem(TEXT.get("FILTER_ALL_TYPES", "All Types"), None)
+        self.type_filter.addItem("BASE", "BASE")
+        self.type_filter.addItem("HONORARY", "HONORARY")
+        self.type_filter.currentIndexChanged.connect(self._apply_filter)
+
+        filter_layout.addSpacing(20)
+        filter_layout.addWidget(QLabel(TEXT.get("FILTER_TYPE", "Filter by Type:")))
+        filter_layout.addWidget(self.type_filter)
+
+        # Add filters to main layout
+        main_layout.addLayout(filter_layout)
 
         # Table
         self.table = QTableWidget(0, 7)
@@ -192,18 +226,45 @@ class MainWindow(QMainWindow):
 
     def _apply_filter(self) -> None:
         query = self.search_edit.text().strip().lower()
-        if not query:
-            filtered = self._employees_cache
-        else:
-            filtered = [
-                emp for emp in self._employees_cache
-                if query in str(emp.nss).lower()
-                   or query in emp.first_name.lower()
-                   or query in emp.last_name_f.lower()
-                   or query in emp.last_name_m.lower()
-                   or query in emp.position_rel.name.lower()
-                   or query in emp.municipality_rel.name.lower()
-            ]
+        selected_position_id = self.position_filter.currentData()
+        selected_municipality_id = self.municipality_filter.currentData()
+        selected_type = self.type_filter.currentData()  # NEW
+
+        filtered = []
+
+        for emp in self._employees_cache:
+            # Text filter
+            matches_text = (
+                    query in str(emp.nss).lower()
+                    or query in emp.first_name.lower()
+                    or query in emp.last_name_f.lower()
+                    or query in emp.last_name_m.lower()
+                    or query in emp.position_rel.name.lower()
+                    or query in emp.municipality_rel.name.lower()
+            ) if query else True
+
+            # Position filter
+            matches_position = (
+                emp.position_id == selected_position_id
+                if selected_position_id is not None else True
+            )
+
+            # Municipality filter
+            matches_municipality = (
+                emp.municipality_id == selected_municipality_id
+                if selected_municipality_id is not None else True
+            )
+
+            # Employee type filter (BASE/HONORARY)
+            matches_type = (
+                emp.employee_type.upper() == selected_type
+                if selected_type is not None else True
+            )
+
+            # Add employee if all conditions match
+            if matches_text and matches_position and matches_municipality and matches_type:
+                filtered.append(emp)
+
         self._fill_table(filtered)
 
     def _on_row_selected(self) -> None:
