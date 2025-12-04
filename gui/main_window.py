@@ -23,6 +23,7 @@ from employees_management.gui.municipality_window import MunicipalityWindow
 from employees_management.gui.position_window import PositionWindow
 
 from employees_management.gui.window_employee import EmployeeDialog
+from employees_management.gui.window_salary import SalaryWindow
 
 
 class MainWindow(QMainWindow):
@@ -332,7 +333,8 @@ class MainWindow(QMainWindow):
         self.chart_window.show()
 
     def _open_report_salary(self):
-        QMessageBox.information(self, "Report", "Salary summary report will open here.")
+        self.salary_window = SalaryWindow(self._employee_service)
+        self.salary_window.show()
 
     def _show_info(self, message: str) -> None:
         QMessageBox.information(self, "Info", message)
