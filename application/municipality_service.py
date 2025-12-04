@@ -31,7 +31,7 @@ class MunicipalityService:
             raise ValueError("Name is required")
         return self._municipality_repo.add(name)
 
-    def update(self, municipality: Municipality, **updates) -> Municipality:
+    def update_municipality(self, municipality: Municipality, **updates) -> Municipality:
         """
 
         :param municipality:

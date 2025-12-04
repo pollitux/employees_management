@@ -92,7 +92,7 @@ class PositionWindow(QMainWindow):
 
         # ---- Table ----
         self.table = QTableWidget(0, 3)
-        self.table.setHorizontalHeaderLabels(["ID", "Name", "Base Salary"])
+        self.table.setHorizontalHeaderLabels(["ID", "Nombre", "Salario base"])
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.selectionModel().selectionChanged.connect(self._on_row_selected)
@@ -109,9 +109,8 @@ class PositionWindow(QMainWindow):
 
         buttons_layout.addWidget(self.btn_add)
         buttons_layout.addWidget(self.btn_edit)
-        buttons_layout.addWidget(self.btn_delete)
+        # buttons_layout.addWidget(self.btn_delete)
         buttons_layout.addStretch()
-        # buttons_layout.addWidget(self.btn_refresh)
 
         # ---- Layout order ----
         layout.addLayout(search_layout)
@@ -185,16 +184,12 @@ class PositionWindow(QMainWindow):
             self._show_error("Position not found.")
             return
 
-        dialog = PositionDialog(self, data={"name": position.name})
+        dialog = PositionDialog(self, data={"name": position.name, "base_salary": str(position.base_salary)})
 
         if dialog.exec() == PositionDialog.DialogCode.Accepted:
             data = dialog.get_data()
-
             try:
-                # Simple edit: delete + add new
-                # (Or implement update in repository)
-                position.name = data["name"]
-                self._service._repository._session.commit()
+                self._service.update_position(position, **data)
                 self._load_positions()
             except Exception as exc:
                 self._show_error(str(exc))

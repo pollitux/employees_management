@@ -177,8 +177,7 @@ class MunicipalityWindow(QMainWindow):
         if dialog.exec() == MunicipalityDialog.DialogCode.Accepted:
             data = dialog.get_data()
             try:
-                municipality.name = data["name"]
-                self._service.update(municipality)
+                self._service.update_municipality(municipality, **data)
                 self._load_municipalities()
             except Exception as exc:
                 self._show_error(str(exc))

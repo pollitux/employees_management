@@ -33,6 +33,18 @@ class PositionService:
             raise ValueError("Name is required")
         return self._position_repo.add(name, base_salary)
 
+    def update_position(self, position: Position, **updates) -> Position:
+        """
+
+        :param position:
+        :return:
+        """
+        # update fields with new values
+        # update fields with new values
+        for key, value in updates.items():
+            setattr(position, key, value)
+        return self._position_repo.update(position)
+
     def find_by_name(self, name) -> Optional[Position]:
         """
 
@@ -40,4 +52,3 @@ class PositionService:
         :return:
         """
         return self._position_repo.find_by_name(name)
-

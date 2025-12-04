@@ -43,6 +43,20 @@ class PositionRepositoryImpl(IPositionRepository):
         self._session.refresh(position)
         return position
 
+    def update(self, position: Position) -> Position:
+        """
+        update position to the database.
+
+        Args:
+            position (Position): The Position object to update.
+
+        Returns:
+            Position: The persisted Employee instance with ID assigned.
+        """
+        self._session.commit()
+        self._session.refresh(position)
+        return position
+
     def find_by_name(self, name: str) -> Optional[Position]:
         """
         Get position by name
