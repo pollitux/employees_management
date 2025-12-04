@@ -1,73 +1,68 @@
-# Employees Management System  
-### Final Project – Technologies of Programming  
+# Employees Management System
+
+### Final Project – Technologies of Programming
+
 ### Python + PyQt6 + SQLAlchemy + Clean Architecture + SOLID
 
-This project was developed as the **final assignment for the course "Technologies of Programming"**.  
-Its main purpose is **educational**, aiming to help students understand and apply:
+This project was developed as the final assignment for the course "Technologies of Programming".  
+Its main purpose is educational, allowing students to learn and apply:
 
-- SOLID principles  
-- Clean Architecture  
-- Good programming practices  
-- PEP 8 style conventions  
-- Desktop application development with PyQt6  
-- SQLAlchemy ORM and repository patterns  
-- Separation of responsibilities and decoupled design  
+- SOLID principles
+- Clean Architecture
+- PEP 8 and Clean Code conventions
+- Repository patterns with SQLAlchemy
+- Desktop development with PyQt6
+- Separation of responsibilities and modular design
+- Data import tools and reporting functionalities
 
-The result is a fully working **desktop management system** for employees, positions, and municipalities, including statistics shown in charts.
+The system provides a complete desktop application for managing employees, positions, and municipalities, including
+charts, CSV import, salary calculations, and advanced filtering tools.
 
 ---
 
 ## Educational Goals
 
-This project is designed to teach students how to build professional, maintainable and modular software.
+This project demonstrates how to build professional, maintainable, and modular software, following patterns used in real
+industry applications.
 
-### Apply **SOLID principles**
+### SOLID Principles
 
-- **S**ingle Responsibility Principle  
-- **O**pen/Closed Principle  
-- **L**iskov Substitution Principle  
-- **I**nterface Segregation Principle  
-- **D**ependency Inversion Principle  
- 
-Official reference:  
-https://en.wikipedia.org/wiki/SOLID
+- Single Responsibility
+- Open/Closed
+- Liskov Substitution
+- Interface Segregation
+- Dependency Inversion
 
- Easy-to-understand explanation:  
+References:  
+https://en.wikipedia.org/wiki/SOLID  
 https://contabo.com/blog/es/que-son-los-principios-solid-en-programacion/
 
 ---
 
-### Follow **Clean Architecture**
+## Clean Architecture
 
-This project separates responsibilities into 4 layers:
+The project is structured in 4 independent layers:
 
-1. **Domain** – Entities and repository interfaces  
-2. **Application** – Use cases / business logic  
-3. **Infrastructure** – ORM, database engine, repository implementations  
-4. **GUI** – PyQt6 windows, dialogs and charts  
+1. Domain – Entities and repository contracts
+2. Application – Services containing business logic
+3. Infrastructure – SQLAlchemy ORM, database engine, repository implementations
+4. GUI – PyQt6 user interface and charts
 
-This design ensures:
+This guarantees:
 
-- High testability  
-- Low coupling  
-- Clear scalability  
-- Independence from frameworks  
+- Low coupling
+- High testability
+- Framework-independent logic
+- Scalability for future features
 
 ---
 
-### Follow **PEP 8 and Clean Code practices**
+## PEP 8 and Clean Code
 
- PEP 8 official style guide:  
-https://peps.python.org/pep-0008/
+Official guide: https://peps.python.org/pep-0008/
 
-Applied aspects:
-
-- snake_case for functions and variables  
-- PascalCase for classes  
-- Clear, simple English comments  
-- Line length and spacing guidelines  
-- Organized imports  
-- Small, readable functions  
+Applied conventions include meaningful naming, consistent spacing, small methods, and English-based comments and
+docstrings.
 
 ---
 
@@ -78,6 +73,7 @@ employees_management/
 │
 ├── application/
 │   ├── employee_service.py
+│   ├── employee_import_service.py
 │   ├── municipality_service.py
 │   └── position_service.py
 │
@@ -96,7 +92,8 @@ employees_management/
 │   ├── municipality_window.py
 │   ├── position_window.py
 │   ├── window_employee.py
-│   └── window_salary.py
+│   ├── window_salary.py
+│   └── dialogs/
 │
 ├── icons/
 │
@@ -120,73 +117,96 @@ employees_management/
 
 ## Architecture Overview
 
-### **Domain Layer**
-- Pure Python entities  
-- Repository interfaces  
-- No external dependencies  
+### Domain Layer
 
-### **Application Layer**
-- Contains the business logic  
-- Services depend on **interfaces**, not implementations  
-- Applies the **Dependency Inversion Principle**  
+Contains the core entities and repository interfaces without dependencies on frameworks.
 
-### **Infrastructure Layer**
-- Implements repositories using SQLAlchemy  
-- Contains database configuration and ORM logic  
+### Application Layer
 
-### **GUI Layer (PyQt6)**
-- CRUD windows for employees, positions, municipalities  
-- Salary management window  
-- Chart window using Matplotlib  
+Encapsulates use cases and business logic. It depends only on domain interfaces.
+
+### Infrastructure Layer
+
+Implements database communication, SQLAlchemy configurations, and repository implementations.
+
+### GUI Layer
+
+Contains PyQt6 windows, dialogs, toolbar menus, CSV import utilities, and Matplotlib charts.
 
 ---
 
 ## Database Configuration
 
-### SQLite (default)
-```
+SQLite (default):
 DATABASE_URL = "sqlite:///employees.db"
-```
 
-### MySQL (optional)
-```
+MySQL (optional):
 DATABASE_URL = "mysql+pymysql://user:password@localhost/employees_db"
-```
 
-Tables are automatically created on first run.
+Tables are automatically created when running the application.
 
 ---
 
 ## Features
 
 ### Employees Module
-- Create, edit and delete employees  
-- Assign position and municipality  
-- Validate data before saving  
-- Salary window included  
+
+- Full CRUD operations
+- Validation for required fields
+- Two employee types: BASE and HONORARY
+- Birthdate and municipality selection
+- Automatic salary calculation
 
 ### Municipalities Module
-- Full CRUD  
-- Integrated with employee creation  
+
+- Full CRUD
+- Integrated with employee registration
 
 ### Positions Module
-- Full CRUD  
-- Used inside employee forms  
 
-### Statistics & Charts
-- Bar chart of employees per position  
-- Labels displayed above bars  
-- Built using embedded Matplotlib  
+- Full CRUD
+
+### Reports and Charts
+
+- Employees by Position
+- Employees by Municipality
+- Bar charts rendered using Matplotlib with labels
+
+### Filtering Tools
+
+- Filter by Position
+- Filter by Municipality
+- Filter by Employee Type (ALL, BASE, HONORARY)
+- Text search by name or NSS
+
+### CSV Import
+
+Under Utils → Import CSV, the system supports loading large datasets into the database using bulk insert.
+
+Expected CSV structure:
+
+nss,first_name,last_name_f,last_name_m,position,municipality,birth_date,employee_type,hourly_rate,hours_worked
+
+### Salary Calculator
+
+Includes a dedicated window for computing employee salary based on:
+
+#### Base Employee:
+
+salary = hourly_rate * 40 + (1 percentage per year of service)
+
+#### Honorary Employee:
+
+salary = hourly_rate * hours_worked + (0.2 percentage per extra hour)
 
 ---
 
 ## Installation
 
-```
+```shell
 python -m venv .venv
-source .venv/bin/activate   # macOS / Linux
-.venv\Scripts\activate      # Windows
-
+source .venv/bin/activate   # macOS / Linux  
+.venv\Scripts\activate      # Windows  
 pip install -r requirements.txt
 ```
 
@@ -194,35 +214,25 @@ pip install -r requirements.txt
 
 ## Run the application
 
-```
+```shell
 python main.py
 ```
 
 ---
 
-## Code Quality
+## Code Quality Standards
 
-The project strictly follows:
-
-- PEP 8  
-- English-based documentation  
-- Single Responsibility per class  
-- SOLID principle compliance  
-- Clean and modular folder structure  
-
-This ensures code is readable, maintainable, and aligned with industry expectations.
+- Clean Architecture
+- SOLID
+- Repository pattern
+- Database abstraction
+- PEP 8 compliance
+- English documentation
 
 ---
 
 ## Academic Purpose
 
-This repository is meant to serve as:
+This project is intended as a learning tool for understanding advanced programming practices, architecture patterns, and
+GUI development. It serves as a reference implementation for students and is not intended for production use.
 
-- A **learning tool** for applying advanced programming principles  
-- A **reference implementation** for future students  
-- A **demonstration project** for software engineering portfolios  
-- An example of how to structure real-world desktop applications  
-
-It is not intended for production use, but rather for **educational analysis and classroom presentations**.
-
----
