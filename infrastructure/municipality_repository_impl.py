@@ -42,6 +42,20 @@ class MunicipalityRepositoryImpl(IMunicipalityRepository):
         self._session.refresh(municipality)
         return municipality
 
+    def update(self, municipality: Municipality) -> Municipality:
+        """
+        update municipality to the database.
+
+        Args:
+            municipality (Municipality): The Municipality object to update.
+
+        Returns:
+            Municipality: The persisted Employee instance with ID assigned.
+        """
+        self._session.commit()
+        self._session.refresh(municipality)
+        return municipality
+
     def find_by_name(self, name: str) -> Optional[Municipality]:
         """
         Get municipality by name
@@ -49,3 +63,13 @@ class MunicipalityRepositoryImpl(IMunicipalityRepository):
         :return:
         """
         return self._session.query(Municipality).filter(Municipality.name == name).first()
+
+    def delete(self, municipality: Municipality) -> bool:
+        """
+        Delete municipality
+        :param municipality:
+        :return:
+        """
+        self._session.delete(municipality)
+        self._session.commit()
+        return True

@@ -31,6 +31,16 @@ class MunicipalityService:
             raise ValueError("Name is required")
         return self._municipality_repo.add(name)
 
+    def update(self, municipality: Municipality, **updates) -> Municipality:
+        """
+
+        :param municipality:
+        :return:
+        """
+        # update fields with new values
+        municipality.name = updates.get("name", municipality.name)
+        return self._municipality_repo.update(municipality)
+
     def find_by_name(self, name: str) -> Municipality:
         """
         Get Municipality by name
@@ -38,3 +48,11 @@ class MunicipalityService:
         :return:
         """
         return self._municipality_repo.find_by_name(name)
+
+    def delete_municipality(self, municipality: Municipality):
+        """
+        delete municipality with given municipality id using municipality repository.
+        :param municipality:
+        :return:
+        """
+        return self._municipality_repo.delete(municipality)

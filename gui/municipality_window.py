@@ -5,8 +5,8 @@ from PyQt6.QtWidgets import (
     QFormLayout, QDialogButtonBox
 )
 
-from students.domain.models import Municipality
-from students.application.municipality_service import MunicipalityService
+from employees_management.domain.models import Municipality
+from employees_management.application.municipality_service import MunicipalityService
 
 
 class MunicipalityDialog(QDialog):
@@ -95,7 +95,7 @@ class MunicipalityWindow(QMainWindow):
 
         self.btn_add.clicked.connect(self._add_municipality)
         self.btn_edit.clicked.connect(self._edit_municipality)
-        self.btn_delete.clicked.connect(self._delete_carrier)
+        self.btn_delete.clicked.connect(self._delete_municipality)
 
         buttons_layout.addWidget(self.btn_add)
         buttons_layout.addWidget(self.btn_edit)
@@ -177,15 +177,13 @@ class MunicipalityWindow(QMainWindow):
         if dialog.exec() == MunicipalityDialog.DialogCode.Accepted:
             data = dialog.get_data()
             try:
-                # Simple edit: delete + add new
-                # (Or implement update in repository)
                 municipality.name = data["name"]
-                self._service._repository._session.commit()
+                self._service.update(municipality)
                 self._load_municipalities()
             except Exception as exc:
                 self._show_error(str(exc))
 
-    def _delete_carrier(self):
+    def _delete_municipality(self):
         if self._selected_id is None:
             self._show_info("Please select a municipality first.")
             return
@@ -201,9 +199,7 @@ class MunicipalityWindow(QMainWindow):
             municipality = self._find_by_id(self._selected_id)
             if municipality:
                 try:
-                    session = self._service._repository._session
-                    session.delete(municipality)
-                    session.commit()
+                    self._service.delete_municipality(municipality)
                     self._load_municipalities()
                 except Exception as exc:
                     self._show_error(str(exc))
