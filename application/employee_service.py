@@ -139,3 +139,11 @@ class EmployeeService:
         )
 
         return self._employee_repo.add(employee)
+
+    def bulk_insert(self, employees: list[Employee]) -> None:
+        """
+
+        :param employees:
+        :return:
+        """
+        self._employee_repo.bulk_insert(employees)

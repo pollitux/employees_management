@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy.orm import Session
 from employees_management.domain.models import Position
 from employees_management.infrastructure.position_repository_impl import PositionRepositoryImpl
@@ -30,3 +32,12 @@ class PositionService:
         if not name and base_salary > 0:
             raise ValueError("Name is required")
         return self._position_repo.add(name, base_salary)
+
+    def find_by_name(self, name) -> Optional[Position]:
+        """
+
+        :param name:
+        :return:
+        """
+        return self._position_repo.find_by_name(name)
+

@@ -41,3 +41,11 @@ class MunicipalityRepositoryImpl(IMunicipalityRepository):
         self._session.commit()
         self._session.refresh(municipality)
         return municipality
+
+    def find_by_name(self, name: str) -> Optional[Municipality]:
+        """
+        Get municipality by name
+        :param name:
+        :return:
+        """
+        return self._session.query(Municipality).filter(Municipality.name == name).first()

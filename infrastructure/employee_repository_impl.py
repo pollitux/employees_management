@@ -67,6 +67,15 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
         self._session.refresh(employee)
         return employee
 
+    def bulk_insert(self, employees: list[Employee]) -> None:
+        """Insert many Employee records efficiently."""
+        try:
+            self._session.bulk_save_objects(employees)
+            self._session.commit()
+        except Exception:
+            self._session.rollback()
+            raise
+
     def update(self, employee: Employee) -> Employee:
         """
         update employee to the database.

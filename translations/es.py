@@ -13,6 +13,8 @@ TEXT = {
     "BTN_DELETE": "Eliminar",
     "BTN_SEARCH": "Buscar",
     "BTN_SALARY": "Salario",
+    "BTN_POSITIONS": "Puestos",
+    "BTN_MUNICIPALITIES": "Municipios",
 
     # Groups
     "GROUP_ACTIONS": "Acciones",
@@ -28,7 +30,7 @@ TEXT = {
         "Apellido Materno",
         "Puesto",
         "Fecha de nacimiento",
-        "Origen"
+        "Municipio",
     ],
 
     # Dialogs

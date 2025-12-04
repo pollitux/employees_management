@@ -1,6 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication
 
+from employees_management.application.employee_import_service import EmployeeImportService
 from employees_management.application.municipality_service import MunicipalityService
 from employees_management.application.position_service import PositionService
 from employees_management.infrastructure.db import Base, engine, SessionLocal
@@ -34,11 +35,19 @@ def main() -> None:
     position_service = PositionService(session=session)
     municipality_service = MunicipalityService(session=session)
 
+    import_service = EmployeeImportService(
+        employee_service,
+        position_service,
+        municipality_service
+    )
+
     window = MainWindow(
         employee_service=employee_service,
         position_service=position_service,
         municipality_service=municipality_service,
+        import_service=import_service
     )
+
     window.resize(800, 400)
     window.show()
 

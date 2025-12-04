@@ -14,6 +14,7 @@ from PyQt6.QtGui import QIcon, QAction
 # set size for components
 from PyQt6.QtCore import QSize
 
+from employees_management.application.employee_import_service import EmployeeImportService
 from employees_management.domain.models import Employee
 from employees_management.application.employee_service import EmployeeService
 from employees_management.application.position_service import PositionService
@@ -24,6 +25,8 @@ from employees_management.gui.position_window import PositionWindow
 
 from employees_management.gui.window_employee import EmployeeDialog
 from employees_management.gui.window_salary import SalaryWindow
+
+from employees_management.translations.es import TEXT
 
 
 class MainWindow(QMainWindow):
@@ -38,13 +41,15 @@ class MainWindow(QMainWindow):
             employee_service: EmployeeService,
             position_service: PositionService,
             municipality_service: MunicipalityService,
+            import_service: EmployeeImportService
     ) -> None:
         super().__init__()
         self._employee_service = employee_service
         self._position_service = position_service
         self._municipality_service = municipality_service
+        self._import_service = import_service
 
-        self.setWindowTitle("Employee Manager")
+        self.setWindowTitle(TEXT["APP_TITLE"])
 
         # Current selection
         self._selected_id: Optional[int] = None
@@ -63,7 +68,7 @@ class MainWindow(QMainWindow):
 
         # Search bar
         search_layout = QHBoxLayout()
-        search_label = QLabel("Search:")
+        search_label = QLabel(TEXT["BTN_SEARCH"])
         self.search_edit = QLineEdit()
         self.search_edit.setPlaceholderText("Type NSS or name...")
         self.search_edit.textChanged.connect(self._apply_filter)
@@ -83,12 +88,12 @@ class MainWindow(QMainWindow):
 
         # Buttons
         buttons_layout = QHBoxLayout()
-        self.btn_add = QPushButton("Add")
-        self.btn_edit = QPushButton("Edit")
-        self.btn_delete = QPushButton("Delete")
+        self.btn_add = QPushButton(TEXT.get("BTN_ADD", "Add"))
+        self.btn_edit = QPushButton(TEXT.get("BTN_EDIT", "Edit"))
+        self.btn_delete = QPushButton(TEXT.get("BTN_DELETE", "Delete"))
 
-        self.btn_positions = QPushButton("Manage Positions")
-        self.btn_municipalities = QPushButton("Manage Municipalities")
+        self.btn_positions = QPushButton(TEXT.get("BTN_POSITIONS", "Positions"))
+        self.btn_municipalities = QPushButton(TEXT.get("BTN_MUNICIPALITIES", "Municipalities"))
 
         self.btn_add.clicked.connect(self._add_employee)
         self.btn_edit.clicked.connect(self._edit_employee)
@@ -148,6 +153,10 @@ class MainWindow(QMainWindow):
 
         # Utils Menu
         utils_menu = QMenu("Utils", self)
+
+        import_csv_action = QAction("Import CSV", self)
+        import_csv_action.triggered.connect(self._import_csv)
+        utils_menu.addAction(import_csv_action)
 
         about_action = QAction("About", self)
         about_action.triggered.connect(lambda: QMessageBox.information(self, "About", "Employee Manager v1.0"))
@@ -304,10 +313,10 @@ class MainWindow(QMainWindow):
 
         self.chart_window = ChartWindow(
             data, self, **{
-                "title": "Employee per Position",
-                "ax_title": "Employee per Position",
-                "ax_ylabel": "Number of employees",
-                "ax_xlabel": "Position",
+                "title": "Empleados por puesto",
+                "ax_title": "Empleados por puesto",
+                "ax_ylabel": "Numero de empleados",
+                "ax_xlabel": "Puestos",
             })
         self.chart_window.show()
 
@@ -325,16 +334,39 @@ class MainWindow(QMainWindow):
         # set data to dialog
         self.chart_window = ChartWindow(
             data, self, **{
-                "title": "Employee per Municipality",
-                "ax_title": "Employee per Municipality",
-                "ax_ylabel": "Number of employees",
-                "ax_xlabel": "Municipality",
+                "title": "Empleados por municipio",
+                "ax_title": "Empleados por municipio",
+                "ax_ylabel": "Numero de empleados",
+                "ax_xlabel": "Municipio",
             })
         self.chart_window.show()
 
     def _open_report_salary(self):
         self.salary_window = SalaryWindow(self._employee_service)
         self.salary_window.show()
+
+    def _import_csv(self):
+        from PyQt6.QtWidgets import QFileDialog
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Select CSV", "", "CSV Files (*.csv)"
+        )
+        if not file_path:
+            return
+
+        try:
+            result = self._import_service.import_csv(file_path)
+
+            summary = (
+                f"Imported: {result['inserted']}\n"
+                f"Failed: {result['failed']}"
+            )
+
+            QMessageBox.information(self, "CSV Import Summary", summary)
+            self._load_employees()
+
+        except Exception as exc:
+            QMessageBox.critical(self, "Import error", str(exc))
 
     def _show_info(self, message: str) -> None:
         QMessageBox.information(self, "Info", message)

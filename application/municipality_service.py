@@ -30,3 +30,11 @@ class MunicipalityService:
         if not name:
             raise ValueError("Name is required")
         return self._municipality_repo.add(name)
+
+    def find_by_name(self, name: str) -> Municipality:
+        """
+        Get Municipality by name
+        :param name:
+        :return:
+        """
+        return self._municipality_repo.find_by_name(name)

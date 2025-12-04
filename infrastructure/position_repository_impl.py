@@ -42,3 +42,11 @@ class PositionRepositoryImpl(IPositionRepository):
         self._session.commit()
         self._session.refresh(position)
         return position
+
+    def find_by_name(self, name: str) -> Optional[Position]:
+        """
+        Get position by name
+        :param name:
+        :return:
+        """
+        return self._session.query(Position).filter(Position.name == name).first()

@@ -17,6 +17,7 @@ class ChartWindow(QMainWindow):
     def __init__(self, data_dict: dict[str, int], parent=None, *args, **kwargs):
         super().__init__(parent)
         self.setWindowTitle(kwargs.get('title', 'Chart Window'))
+        self.resize(800, 400)
 
         central = QWidget()
         layout = QVBoxLayout()
