@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from typing import Optional, List
 
@@ -222,8 +221,12 @@ class MainWindow(QMainWindow):
         pandas_filter_position = QAction("Empleados por puesto (DF)", self)
         pandas_filter_position.triggered.connect(self._open_filter_position)
 
+        age_range_report = QAction("Rango de edades (Pandas)", self)
+        age_range_report.triggered.connect(self._open_report_age_ranges)
+
         pandas_menu.addAction(pandas_filter_age)
         pandas_menu.addAction(pandas_filter_position)
+        pandas_menu.addAction(age_range_report)
 
         pandas_action = QAction(QIcon("icons/panda.png"), "Pandas Filters", self)
         pandas_action.setMenu(pandas_menu)
@@ -236,16 +239,16 @@ class MainWindow(QMainWindow):
 
     def _fill_table(self, employees: List[Employee]) -> None:
         self.table.setRowCount(0)
-        for emp in employees:
+        for employee in employees:
             row = self.table.rowCount()
             self.table.insertRow(row)
-            self.table.setItem(row, 0, QTableWidgetItem(str(emp.nss)))
-            self.table.setItem(row, 1, QTableWidgetItem(emp.first_name))
-            self.table.setItem(row, 2, QTableWidgetItem(emp.last_name_f))
-            self.table.setItem(row, 3, QTableWidgetItem(emp.last_name_m))
-            self.table.setItem(row, 4, QTableWidgetItem(emp.position_rel.name))
-            self.table.setItem(row, 5, QTableWidgetItem(emp.birth_date.strftime('%Y-%m-%d')))
-            self.table.setItem(row, 6, QTableWidgetItem(emp.municipality_rel.name))
+            self.table.setItem(row, 0, QTableWidgetItem(str(employee.nss)))
+            self.table.setItem(row, 1, QTableWidgetItem(employee.first_name))
+            self.table.setItem(row, 2, QTableWidgetItem(employee.last_name_f))
+            self.table.setItem(row, 3, QTableWidgetItem(employee.last_name_m))
+            self.table.setItem(row, 4, QTableWidgetItem(employee.position_rel.name))
+            self.table.setItem(row, 5, QTableWidgetItem(employee.birth_date.strftime('%Y-%m-%d')))
+            self.table.setItem(row, 6, QTableWidgetItem(employee.municipality_rel.name))
 
     def _apply_filter(self) -> None:
         query = self.search_edit.text().strip().lower()
@@ -255,38 +258,38 @@ class MainWindow(QMainWindow):
 
         filtered = []
 
-        for emp in self._employees_cache:
+        for employee in self._employees_cache:
             # Text filter
             matches_text = (
-                    query in str(emp.nss).lower()
-                    or query in emp.first_name.lower()
-                    or query in emp.last_name_f.lower()
-                    or query in emp.last_name_m.lower()
-                    or query in emp.position_rel.name.lower()
-                    or query in emp.municipality_rel.name.lower()
+                    query in str(employee.nss).lower()
+                    or query in employee.first_name.lower()
+                    or query in employee.last_name_f.lower()
+                    or query in employee.last_name_m.lower()
+                    or query in employee.position_rel.name.lower()
+                    or query in employee.municipality_rel.name.lower()
             ) if query else True
 
             # Position filter
             matches_position = (
-                emp.position_id == selected_position_id
+                employee.position_id == selected_position_id
                 if selected_position_id is not None else True
             )
 
             # Municipality filter
             matches_municipality = (
-                emp.municipality_id == selected_municipality_id
+                employee.municipality_id == selected_municipality_id
                 if selected_municipality_id is not None else True
             )
 
             # Employee type filter (BASE/HONORARY)
             matches_type = (
-                emp.employee_type.upper() == selected_type
+                employee.employee_type.upper() == selected_type
                 if selected_type is not None else True
             )
 
             # Add employee if all conditions match
             if matches_text and matches_position and matches_municipality and matches_type:
-                filtered.append(emp)
+                filtered.append(employee)
 
         self._fill_table(filtered)
 
@@ -488,7 +491,7 @@ class MainWindow(QMainWindow):
             return
 
         from employees_management.gui.pandas_table_window import PandasTableWindow
-        PandasTableWindow(filtered, "Employees Age 25–35", self).show()
+        PandasTableWindow(filtered, "Emepleados entre 25–35 años", self).show()
 
     def _open_filter_position(self):
         from employees_management.gui.pandas_table_window import PandasTableWindow
@@ -497,8 +500,65 @@ class MainWindow(QMainWindow):
 
         grouped = df.groupby("position").size().reset_index(name="count")
 
-        window = PandasTableWindow(grouped, "Employees by Position (Pandas)", self)
+        window = PandasTableWindow(grouped, "Empleados por puesto (Pandas)", self)
         window.show()
+
+    def _open_report_age_ranges(self):
+        """
+        Build age ranges using Pandas and show a bar chart of how many employees fall in each range.
+        """
+        import pandas as pd
+        try:
+            df = self._pandas_service.employees_to_dataframe(self._employees_cache)
+        except Exception as exc:
+            QMessageBox.critical(self, "Pandas error", f"Could not build DataFrame: {exc}")
+            return
+
+        if df.empty or "age" not in df.columns:
+            QMessageBox.information(self, "No data", "No employee age data available.")
+            return
+
+        ages = df["age"].dropna()
+
+        if ages.empty:
+            QMessageBox.information(self, "No data", "No valid ages to evaluate.")
+            return
+
+        # Define bins for age ranges
+        bins = [18, 21, 28, 34, 40, 120]
+        labels = [
+            "18–21",
+            "22–28",
+            "29–34",
+            "35–40",
+            "41+"
+        ]
+
+        # Convert numeric ages into categorical ranges using Pandas `cut`.
+        # - `ages`: a Series containing the numeric ages of employees.
+        # - `bins`: the exact numeric boundaries that define the ranges.
+        # - `labels`: the text labels assigned to each range.
+        # - `right=True`: means each interval is right-inclusive (e.g., 18–21 includes 21).
+        # The result is a new column "age_range" that categorizes every employee
+        # into one of the defined age groups.
+        df["age_range"] = pd.cut(ages, bins=bins, labels=labels, right=True)
+
+        # Count employees per age range
+        range_counts = df["age_range"].value_counts().sort_index()
+
+        data = range_counts.to_dict()
+
+        self.chart_window = ChartWindow(
+            data,
+            self,
+            **{
+                "title": "Empleados por rango de edad",
+                "ax_title": "Empleados por rango de edad",
+                "ax_ylabel": "Numero de empleados",
+                "ax_xlabel": "Rango de edades",
+            }
+        )
+        self.chart_window.show()
 
     def _show_info(self, message: str) -> None:
         QMessageBox.information(self, "Info", message)

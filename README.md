@@ -1,70 +1,64 @@
-# Employees Management System
-
-### Final Project – Technologies of Programming
-
-### Python + PyQt6 + SQLAlchemy + Clean Architecture + SOLID
+# Employees Management System  
+Final Project – Technologies of Programming  
+Python + PyQt6 + SQLAlchemy + Pandas + Matplotlib + Clean Architecture + SOLID
 
 This project was developed as the final assignment for the course "Technologies of Programming".  
-Its main purpose is educational, allowing students to learn and apply:
+Its main purpose is educational, demonstrating how to build a modular, maintainable desktop system applying:
 
-- SOLID principles
-- Clean Architecture
-- PEP 8 and Clean Code conventions
-- Repository patterns with SQLAlchemy
-- Desktop development with PyQt6
-- Separation of responsibilities and modular design
-- Data import tools and reporting functionalities
+- SOLID principles  
+- Clean Architecture  
+- PEP 8 conventions  
+- Good programming practices  
+- PyQt6 for desktop UI  
+- SQLAlchemy ORM  
+- Pandas for data analysis  
+- Matplotlib for multiple chart types  
+- CSV import and export functionality  
 
-The system provides a complete desktop application for managing employees, positions, and municipalities, including
-charts, CSV import, salary calculations, and advanced filtering tools.
-
----
+The final result is a complete employee-management desktop system with data persistence, reporting, analytics, and visualization.
 
 ## Educational Goals
 
-This project demonstrates how to build professional, maintainable, and modular software, following patterns used in real
-industry applications.
+This project is designed to help students/professors understand how real software projects are structured.
 
-### SOLID Principles
+### SOLID Principles  
+Applied across services, repositories, and GUI separation.
 
-- Single Responsibility
-- Open/Closed
-- Liskov Substitution
-- Interface Segregation
-- Dependency Inversion
+Reference:  
+https://en.wikipedia.org/wiki/SOLID
 
-References:  
-https://en.wikipedia.org/wiki/SOLID  
+Explanation:  
 https://contabo.com/blog/es/que-son-los-principios-solid-en-programacion/
-
----
 
 ## Clean Architecture
 
-The project is structured in 4 independent layers:
+The system is divided into four independent layers:
 
-1. Domain – Entities and repository contracts
-2. Application – Services containing business logic
-3. Infrastructure – SQLAlchemy ORM, database engine, repository implementations
-4. GUI – PyQt6 user interface and charts
+1. Domain  
+2. Application  
+3. Infrastructure  
+4. GUI (PyQt6)
 
-This guarantees:
+This architecture ensures:
 
-- Low coupling
-- High testability
-- Framework-independent logic
-- Scalability for future features
-
----
+- Low coupling  
+- High cohesion  
+- Easy testing  
+- Independence from frameworks  
+- Maintainability and scalability  
 
 ## PEP 8 and Clean Code
 
-Official guide: https://peps.python.org/pep-0008/
+The project follows:
 
-Applied conventions include meaningful naming, consistent spacing, small methods, and English-based comments and
-docstrings.
+- snake_case for variables and functions  
+- PascalCase for classes  
+- Meaningful comments written in simple English  
+- Small, readable functions  
+- Avoiding duplicated logic  
+- Modular design  
 
----
+PEP 8 reference: https://peps.python.org/pep-0008/
 
 ## Project Structure
 
@@ -73,9 +67,10 @@ employees_management/
 │
 ├── application/
 │   ├── employee_service.py
-│   ├── employee_import_service.py
 │   ├── municipality_service.py
-│   └── position_service.py
+│   ├── position_service.py
+│   ├── employee_import_service.py
+│   └── pandas_service.py
 │
 ├── config/
 │   └── settings.py
@@ -93,15 +88,15 @@ employees_management/
 │   ├── position_window.py
 │   ├── window_employee.py
 │   ├── window_salary.py
-│   └── dialogs/
-│
-├── icons/
+│   └── window_filters.py
 │
 ├── infrastructure/
 │   ├── db.py
 │   ├── employee_repository_impl.py
 │   ├── municipality_repository_impl.py
 │   └── position_repository_impl.py
+│
+├── icons/
 │
 ├── translations/
 │   ├── es.py
@@ -113,104 +108,73 @@ employees_management/
 └── requirements.txt
 ```
 
----
+## Database Support
 
-## Architecture Overview
-
-### Domain Layer
-
-Contains the core entities and repository interfaces without dependencies on frameworks.
-
-### Application Layer
-
-Encapsulates use cases and business logic. It depends only on domain interfaces.
-
-### Infrastructure Layer
-
-Implements database communication, SQLAlchemy configurations, and repository implementations.
-
-### GUI Layer
-
-Contains PyQt6 windows, dialogs, toolbar menus, CSV import utilities, and Matplotlib charts.
-
----
-
-## Database Configuration
-
-SQLite (default):
+### SQLite (default)
+```
 DATABASE_URL = "sqlite:///employees.db"
+```
 
-MySQL (optional):
+### MySQL (required for the assignment)
+Using SQLAlchemy:
+
+```
 DATABASE_URL = "mysql+pymysql://user:password@localhost/employees_db"
-
-Tables are automatically created when running the application.
-
----
+```
 
 ## Features
 
 ### Employees Module
+- Add employees (base or honoraries)
+- Edit all editable fields
+- Delete employees
+- Search by NSS or name
+- Filters by:
+  - Position
+  - Municipality
+  - Employee type (Base / Honorary)
 
-- Full CRUD operations
-- Validation for required fields
-- Two employee types: BASE and HONORARY
-- Birthdate and municipality selection
-- Automatic salary calculation
+### CSV Import  
+Bulk CSV import includes:
+- Position lookup  
+- Municipality lookup  
+- Normalization of employee type  
+- Validation of inputs  
+- Summary of inserted and failed rows  
 
-### Municipalities Module
+### Pandas Filters  
+Three filters implemented:
+1. Age ranges  
+2. Municipality  
+3. Employee type  
 
-- Full CRUD
-- Integrated with employee registration
+### Charts (Matplotlib)
+1. Employees by position  
+2. Employees by municipality  
+3. Salary summary  
+4. Employee type distribution (Pie chart)  
+5. Age range distribution (Bar chart)
 
-### Positions Module
+## Pandas Age Range Categorization
 
-- Full CRUD
+```
+df["age_range"] = pd.cut(
+    ages,
+    bins=bins,
+    labels=labels,
+    right=True
+)
+```
 
-### Reports and Charts
-
-- Employees by Position
-- Employees by Municipality
-- Bar charts rendered using Matplotlib with labels
-
-### Filtering Tools
-
-- Filter by Position
-- Filter by Municipality
-- Filter by Employee Type (ALL, BASE, HONORARY)
-- Text search by name or NSS
-
-### CSV Import
-
-Under Utils → Import CSV, the system supports loading large datasets into the database using bulk insert.
-
-Expected CSV structure:
-
-nss,first_name,last_name_f,last_name_m,position,municipality,birth_date,employee_type,hourly_rate,hours_worked
-
-### Salary Calculator
-
-Includes a dedicated window for computing employee salary based on:
-
-#### Base Employee:
-
-salary = hourly_rate * 40 + (1 percentage per year of service)
-
-#### Honorary Employee:
-
-salary = hourly_rate * hours_worked + (0.2 percentage per extra hour)
-
----
+This line converts numeric employee ages into labeled categories for better visualization.
 
 ## Installation
 
 ```shell
 python -m venv .venv
-source .venv/bin/activate   # macOS / Linux  
-.venv\Scripts\activate      # Windows  
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
-
----
 
 ## Run the application
 
@@ -218,21 +182,12 @@ pip install -r requirements.txt
 python main.py
 ```
 
----
+## Academic Requirements Covered
 
-## Code Quality Standards
+- CSV/XLSX reading  
+- MySQL CRUD  
+- Pandas filters  
+- Matplotlib graphs  
+- Database script included  
 
-- Clean Architecture
-- SOLID
-- Repository pattern
-- Database abstraction
-- PEP 8 compliance
-- English documentation
-
----
-
-## Academic Purpose
-
-This project is intended as a learning tool for understanding advanced programming practices, architecture patterns, and
-GUI development. It serves as a reference implementation for students and is not intended for production use.
-
+This project is intended purely for academic and educational use.

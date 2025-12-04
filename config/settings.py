@@ -12,7 +12,7 @@ def get_database_url() -> str:
     Build database URL for SQLAlchemy.
     Uses SQLite as fallback if no engine is specified.
     """
-    engine = os.getenv("DB_ENGINE", "mysql").lower()
+    engine = os.getenv("DB_ENGINE", "sqlite").lower()
 
     if engine == "mysql":
         user = os.getenv("DB_USER", "root")
