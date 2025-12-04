@@ -15,6 +15,7 @@ from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import QSize
 
 from employees_management.application.employee_import_service import EmployeeImportService
+from employees_management.application.pandas_service import PandasService
 from employees_management.domain.models import Employee
 from employees_management.application.employee_service import EmployeeService
 from employees_management.application.position_service import PositionService
@@ -42,13 +43,15 @@ class MainWindow(QMainWindow):
             employee_service: EmployeeService,
             position_service: PositionService,
             municipality_service: MunicipalityService,
-            import_service: EmployeeImportService
+            import_service: EmployeeImportService,
+            pandas_service: PandasService,
     ) -> None:
         super().__init__()
         self._employee_service = employee_service
         self._position_service = position_service
         self._municipality_service = municipality_service
         self._import_service = import_service
+        self._pandas_service = pandas_service
 
         self.setWindowTitle(TEXT["APP_TITLE"])
 
@@ -210,6 +213,21 @@ class MainWindow(QMainWindow):
         utils_action = QAction(QIcon("icons/tools.png"), "Utils", self)
         utils_action.setMenu(utils_menu)
         toolbar.addAction(utils_action)
+
+        pandas_menu = QMenu("Analitica Pandas Filters", self)
+
+        pandas_filter_age = QAction("Edad de empleados 25-35", self)
+        pandas_filter_age.triggered.connect(self._open_filter_age)
+
+        pandas_filter_position = QAction("Empleados por puesto (DF)", self)
+        pandas_filter_position.triggered.connect(self._open_filter_position)
+
+        pandas_menu.addAction(pandas_filter_age)
+        pandas_menu.addAction(pandas_filter_position)
+
+        pandas_action = QAction(QIcon("icons/panda.png"), "Pandas Filters", self)
+        pandas_action.setMenu(pandas_menu)
+        toolbar.addAction(pandas_action)
 
     def _load_employees(self) -> None:
         self._employees_cache = self._employee_service.list_employees()
@@ -459,6 +477,28 @@ class MainWindow(QMainWindow):
 
         except Exception as exc:
             QMessageBox.critical(self, "Import error", str(exc))
+
+    def _open_filter_age(self):
+        df = self._pandas_service.employees_to_dataframe(self._employees_cache)
+
+        filtered = df[(df["age"] >= 25) & (df["age"] <= 35)]
+
+        if filtered.empty:
+            QMessageBox.information(self, "No results", "No employees in this age range.")
+            return
+
+        from employees_management.gui.pandas_table_window import PandasTableWindow
+        PandasTableWindow(filtered, "Employees Age 25–35", self).show()
+
+    def _open_filter_position(self):
+        from employees_management.gui.pandas_table_window import PandasTableWindow
+
+        df = self._pandas_service.employees_to_dataframe(self._employees_cache)
+
+        grouped = df.groupby("position").size().reset_index(name="count")
+
+        window = PandasTableWindow(grouped, "Employees by Position (Pandas)", self)
+        window.show()
 
     def _show_info(self, message: str) -> None:
         QMessageBox.information(self, "Info", message)

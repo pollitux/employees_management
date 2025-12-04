@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QApplication
 from employees_management.application.employee_import_service import EmployeeImportService
 from employees_management.application.municipality_service import MunicipalityService
 from employees_management.application.position_service import PositionService
+from employees_management.application.pandas_service import PandasService
 from employees_management.infrastructure.db import Base, engine, SessionLocal
 from employees_management.domain.models import Employee
 
@@ -41,11 +42,14 @@ def main() -> None:
         municipality_service
     )
 
+    pandas_service = PandasService()
+
     window = MainWindow(
-        employee_service=employee_service,
-        position_service=position_service,
-        municipality_service=municipality_service,
-        import_service=import_service
+        employee_service,
+        position_service,
+        municipality_service,
+        import_service,
+        pandas_service,
     )
 
     window.resize(800, 600)
