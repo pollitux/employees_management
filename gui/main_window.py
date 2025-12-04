@@ -20,6 +20,7 @@ from employees_management.application.employee_service import EmployeeService
 from employees_management.application.position_service import PositionService
 from employees_management.application.municipality_service import MunicipalityService
 from employees_management.gui.chart_window import ChartWindow
+from employees_management.gui.chart_window_pie import PieChartWindow
 from employees_management.gui.municipality_window import MunicipalityWindow
 from employees_management.gui.position_window import PositionWindow
 
@@ -165,11 +166,14 @@ class MainWindow(QMainWindow):
         # Reports Menu
         reports_menu = QMenu("Reports", self)
 
-        reports_by_position = QAction("Employees by Position", self)
+        reports_by_position = QAction("Empleados por puesto", self)
         reports_by_position.triggered.connect(self._open_report_employees_by_position)
 
-        reports_by_municipality = QAction("Employees by Municipality", self)
+        reports_by_municipality = QAction("Empledos por municipio", self)
         reports_by_municipality.triggered.connect(self._open_report_employees_by_municipality)
+
+        report_base_vs_honorary = QAction("Base vs Honorarios", self)
+        report_base_vs_honorary.triggered.connect(self._open_report_base_vs_honorary)
 
         salary_report = QAction("Salary Summary", self)
         salary_report.triggered.connect(self._open_report_salary)
@@ -177,6 +181,7 @@ class MainWindow(QMainWindow):
         # Add items to menu
         reports_menu.addAction(reports_by_position)
         reports_menu.addAction(reports_by_municipality)
+        reports_menu.addAction(report_base_vs_honorary)
         reports_menu.addSeparator()
         reports_menu.addAction(salary_report)
 
@@ -400,6 +405,32 @@ class MainWindow(QMainWindow):
                 "ax_ylabel": "Numero de empleados",
                 "ax_xlabel": "Municipio",
             })
+        self.chart_window.show()
+
+    def _open_report_base_vs_honorary(self):
+        base = 0
+        honorary = 0
+
+        for employee in self._employees_cache:
+            if employee.employee_type.upper() == "BASE":
+                base += 1
+            else:
+                honorary += 1
+
+        data = {
+            "Base": base,
+            "Honorarios": honorary
+        }
+
+        if base == 0 and honorary == 0:
+            QMessageBox.information(self, "No data", "No employees registered.")
+            return
+
+        self.chart_window = PieChartWindow(
+            data,
+            self,
+            title="Porcentaje de empleados BASE vs HONORARIOS"
+        )
         self.chart_window.show()
 
     def _open_report_salary(self):
