@@ -14,9 +14,9 @@ class ChartWindow(QMainWindow):
     Includes labels above each bar.
     """
 
-    def __init__(self, data_dict: dict[str, int], parent=None):
+    def __init__(self, data_dict: dict[str, int], parent=None, *args, **kwargs):
         super().__init__(parent)
-        self.setWindowTitle("Students per Carrier")
+        self.setWindowTitle(kwargs.get('title', 'Chart Window'))
 
         central = QWidget()
         layout = QVBoxLayout()
@@ -37,9 +37,9 @@ class ChartWindow(QMainWindow):
         # Plot
         bars = ax.bar(labels, values)
 
-        ax.set_title("Students per Carrier")
-        ax.set_ylabel("Number of Students")
-        ax.set_xlabel("Carrier")
+        ax.set_title(kwargs.get('ax_title', 'Employee per Position'))
+        ax.set_ylabel(kwargs.get('ax_ylabel', 'Number of employees'))
+        ax.set_xlabel(kwargs.get('ax_xlabel', 'Position'))
 
         # Add value labels above each bar
         for bar in bars:

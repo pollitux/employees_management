@@ -18,6 +18,7 @@ from employees_management.domain.models import Employee
 from employees_management.application.employee_service import EmployeeService
 from employees_management.application.position_service import PositionService
 from employees_management.application.municipality_service import MunicipalityService
+from employees_management.gui.chart_window import ChartWindow
 from employees_management.gui.municipality_window import MunicipalityWindow
 from employees_management.gui.position_window import PositionWindow
 
@@ -289,10 +290,46 @@ class MainWindow(QMainWindow):
         self.municipality_window.show()
 
     def _open_report_employees_by_position(self):
-        QMessageBox.information(self, "Report", "Employees by Position report will open here.")
+        data = {}
+        for employee in self._employees_cache:
+            if not employee.position_rel:
+                continue
+            name = employee.position_rel.name
+            data[name] = data.get(name, 0) + 1
+
+        if not data:
+            self._show_info("No data available to display chart.")
+            return
+
+        self.chart_window = ChartWindow(
+            data, self, **{
+                "title": "Employee per Position",
+                "ax_title": "Employee per Position",
+                "ax_ylabel": "Number of employees",
+                "ax_xlabel": "Position",
+            })
+        self.chart_window.show()
 
     def _open_report_employees_by_municipality(self):
-        QMessageBox.information(self, "Report", "Employees by Municipality report will open here.")
+        data = {}
+        for employee in self._employees_cache:
+            if not employee.municipality_rel:
+                continue
+            name = employee.municipality_rel.name
+            data[name] = data.get(name, 0) + 1
+
+        if not data:
+            self._show_info("No data available to display chart.")
+            return
+        # set data to dialog
+        self.chart_window = ChartWindow(
+            data, self, **{
+                "title": "Employee per Municipality",
+                "ax_title": "Employee per Municipality",
+                "ax_ylabel": "Number of employees",
+                "ax_xlabel": "Municipality",
+            })
+        self.chart_window.show()
 
     def _open_report_salary(self):
         QMessageBox.information(self, "Report", "Salary summary report will open here.")
