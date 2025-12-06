@@ -31,11 +31,11 @@ class EmployeeImportService:
                 try:
                     position = self._position_service.find_by_name(row["position"])
                     if not position:
-                        raise ValueError(f"Unknown position: {row['position']}")
+                        position = self._position_service.create_position(row["position"], row["hourly_rate"])
 
                     municipality = self._municipality_service.find_by_name(row["municipality"])
                     if not municipality:
-                        raise ValueError(f"Unknown municipality: {row['municipality']}")
+                        municipality = self._municipality_service.create_municipality(row["municipality"])
 
                     employee = Employee(
                         nss=int(row["nss"]),

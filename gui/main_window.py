@@ -84,14 +84,14 @@ class MainWindow(QMainWindow):
 
         self.position_filter = QComboBox()
         self.position_filter.addItem(TEXT.get("FILTER_ALL_POSITIONS", "All Positions"), None)
-        for pos in self._position_service.list_positions():
-            self.position_filter.addItem(pos.name, pos.id)
+        for position in self._position_service.list_positions():
+            self.position_filter.addItem(position.name, position.id)
         self.position_filter.currentIndexChanged.connect(self._apply_filter)
 
         self.municipality_filter = QComboBox()
         self.municipality_filter.addItem(TEXT.get("FILTER_ALL_MUNICIPALITIES", "All Municipalities"), None)
-        for mun in self._municipality_service.list_municipalities():
-            self.municipality_filter.addItem(mun.name, mun.id)
+        for municipality in self._municipality_service.list_municipalities():
+            self.municipality_filter.addItem(municipality.name, municipality.id)
         self.municipality_filter.currentIndexChanged.connect(self._apply_filter)
 
         filter_layout.addWidget(QLabel(TEXT.get("FILTER_POSITION", "Filter by Position:")))
