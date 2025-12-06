@@ -83,15 +83,9 @@ class MainWindow(QMainWindow):
         filter_layout = QHBoxLayout()
 
         self.position_filter = QComboBox()
-        self.position_filter.addItem(TEXT.get("FILTER_ALL_POSITIONS", "All Positions"), None)
-        for position in self._position_service.list_positions():
-            self.position_filter.addItem(position.name, position.id)
-        self.position_filter.currentIndexChanged.connect(self._apply_filter)
-
         self.municipality_filter = QComboBox()
-        self.municipality_filter.addItem(TEXT.get("FILTER_ALL_MUNICIPALITIES", "All Municipalities"), None)
-        for municipality in self._municipality_service.list_municipalities():
-            self.municipality_filter.addItem(municipality.name, municipality.id)
+        self._load_filters()
+        self.position_filter.currentIndexChanged.connect(self._apply_filter)
         self.municipality_filter.currentIndexChanged.connect(self._apply_filter)
 
         filter_layout.addWidget(QLabel(TEXT.get("FILTER_POSITION", "Filter by Position:")))
@@ -237,6 +231,30 @@ class MainWindow(QMainWindow):
         self._apply_filter()
         self._selected_id = None
 
+    def _load_filters(self):
+        """
+
+        :return:
+        """
+        self.position_filter.clear()
+        self.municipality_filter.clear()
+        self.position_filter.addItem(TEXT.get("FILTER_ALL_POSITIONS", "All Positions"), None)
+
+        for position in self._position_service.list_positions():
+            self.position_filter.addItem(position.name, position.id)
+
+        self.municipality_filter.addItem(TEXT.get("FILTER_ALL_MUNICIPALITIES", "All Municipalities"), None)
+        for municipality in self._municipality_service.list_municipalities():
+            self.municipality_filter.addItem(municipality.name, municipality.id)
+
+    def _on_child_window_closed(self):
+        """
+        Refresh data of main window
+        :return:
+        """
+        self._load_employees()
+        self._load_filters()
+
     def _fill_table(self, employees: List[Employee]) -> None:
         self.table.setRowCount(0)
         for employee in employees:
@@ -379,11 +397,23 @@ class MainWindow(QMainWindow):
             self._load_employees()
 
     def _open_position_window(self):
+        """
+        open the position window
+        :return:
+        """
         self.position_window = PositionWindow(self._position_service)
+        # Connect the custom `closed` signal from the child window to the main refresh method.
+        self.position_window.destroyed.connect(self._on_child_window_closed)
         self.position_window.show()
 
     def _open_municipality_window(self):
+        """
+        open the municipality window
+        :return:
+        """
         self.municipality_window = MunicipalityWindow(self._municipality_service)
+        # Connect the custom `closed` signal from the child window to the main refresh method.
+        self.municipality_window.closed.connect(self._on_child_window_closed)
         self.municipality_window.show()
 
     def _open_report_employees_by_position(self):
@@ -476,7 +506,8 @@ class MainWindow(QMainWindow):
             )
 
             QMessageBox.information(self, "CSV Import Summary", summary)
-            self._load_employees()
+            # refresh content of main windows
+            self._on_child_window_closed()
 
         except Exception as exc:
             QMessageBox.critical(self, "Import error", str(exc))
