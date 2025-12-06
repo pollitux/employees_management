@@ -27,6 +27,7 @@ from employees_management.gui.position_window import PositionWindow
 
 from employees_management.gui.window_employee import EmployeeDialog
 from employees_management.gui.window_salary import SalaryWindow
+from employees_management.gui.about_dialog import AboutDialog
 
 from employees_management.translations.es import TEXT
 
@@ -201,7 +202,8 @@ class MainWindow(QMainWindow):
         utils_menu.addAction(import_csv_action)
 
         about_action = QAction("About", self)
-        about_action.triggered.connect(lambda: QMessageBox.information(self, "About", "Employee Manager v1.0"))
+        about_action.triggered.connect(self._open_about_dialog)
+        utils_menu.addAction(about_action)
 
         export_csv_action = QAction("Exportar CSV", self)
         export_csv_action.triggered.connect(self._export_filtered_csv)
@@ -617,6 +619,10 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "Success", f"File saved:\n{file_path}")
         except Exception as exc:
             QMessageBox.critical(self, "Export error", str(exc))
+
+    def _open_about_dialog(self):
+        dialog = AboutDialog(self)
+        dialog.exec()
 
     def _show_info(self, message: str) -> None:
         QMessageBox.information(self, "Info", message)
