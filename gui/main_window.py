@@ -100,9 +100,13 @@ class MainWindow(QMainWindow):
         self.type_filter.addItem("HONORARY", "HONORARY")
         self.type_filter.currentIndexChanged.connect(self._apply_filter)
 
+        self.btn_refresh = QPushButton(TEXT.get("BTN_CLEAR_FILTERS", "Clear filters"))
+        self.btn_refresh.clicked.connect(self._on_child_window_closed)
+
         filter_layout.addSpacing(20)
         filter_layout.addWidget(QLabel(TEXT.get("FILTER_TYPE", "Filter by Type:")))
         filter_layout.addWidget(self.type_filter)
+        filter_layout.addWidget(self.btn_refresh)
 
         # Add filters to main layout
         main_layout.addLayout(filter_layout)

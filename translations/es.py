@@ -13,6 +13,7 @@ TEXT = {
     "BTN_DELETE": "Eliminar",
     "BTN_SEARCH": "Buscar",
     "BTN_SALARY": "Salario",
+    "BTN_CLEAR_FILTERS": "Limpiar",
     "BTN_POSITIONS": "Puestos",
     "BTN_MUNICIPALITIES": "Municipios",
     # Filters
