@@ -17,8 +17,6 @@ class PositionDialog(QDialog):
     Only contains a 'name' field.
     """
 
-    closed = pyqtSignal()
-
     def __init__(self, parent=None, data=None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Position")
@@ -61,6 +59,7 @@ class PositionWindow(QMainWindow):
     Window to manage Position.
     Full CRUD interface.
     """
+    closed = pyqtSignal()
 
     def __init__(self, carrier_service: PositionService):
         super().__init__()
