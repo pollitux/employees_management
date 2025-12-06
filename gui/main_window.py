@@ -13,6 +13,7 @@ from PyQt6.QtGui import QIcon, QAction
 # set size for components
 from PyQt6.QtCore import QSize
 
+from employees_management.application.employee_export_service import EmployeeExportService
 from employees_management.application.employee_import_service import EmployeeImportService
 from employees_management.application.pandas_service import PandasService
 from employees_management.domain.models import Employee
@@ -44,6 +45,7 @@ class MainWindow(QMainWindow):
             municipality_service: MunicipalityService,
             import_service: EmployeeImportService,
             pandas_service: PandasService,
+            export_service=EmployeeExportService,
     ) -> None:
         super().__init__()
         self._employee_service = employee_service
@@ -51,6 +53,7 @@ class MainWindow(QMainWindow):
         self._municipality_service = municipality_service
         self._import_service = import_service
         self._pandas_service = pandas_service
+        self._export_service = export_service
 
         self.setWindowTitle(TEXT["APP_TITLE"])
 
@@ -193,19 +196,18 @@ class MainWindow(QMainWindow):
         # Utils Menu
         utils_menu = QMenu("Utils", self)
 
-        import_csv_action = QAction("Import CSV", self)
+        import_csv_action = QAction("Importar CSV", self)
         import_csv_action.triggered.connect(self._import_csv)
         utils_menu.addAction(import_csv_action)
 
         about_action = QAction("About", self)
         about_action.triggered.connect(lambda: QMessageBox.information(self, "About", "Employee Manager v1.0"))
 
-        settings_action = QAction("Settings", self)
-        settings_action.triggered.connect(
-            lambda: QMessageBox.information(self, "Settings", "Settings window will be available soon."))
+        export_csv_action = QAction("Exportar CSV", self)
+        export_csv_action.triggered.connect(self._export_filtered_csv)
+        utils_menu.addAction(export_csv_action)
 
         utils_menu.addAction(about_action)
-        utils_menu.addAction(settings_action)
 
         utils_action = QAction(QIcon("icons/tools.png"), "Utils", self)
         utils_action.setMenu(utils_menu)
@@ -272,47 +274,8 @@ class MainWindow(QMainWindow):
             self.table.setItem(row, 5, QTableWidgetItem(employee.birth_date.strftime('%Y-%m-%d')))
             self.table.setItem(row, 6, QTableWidgetItem(employee.municipality_rel.name))
 
-    def _apply_filter(self) -> None:
-        query = self.search_edit.text().strip().lower()
-        selected_position_id = self.position_filter.currentData()
-        selected_municipality_id = self.municipality_filter.currentData()
-        selected_type = self.type_filter.currentData()  # NEW
-
-        filtered = []
-
-        for employee in self._employees_cache:
-            # Text filter
-            matches_text = (
-                    query in str(employee.nss).lower()
-                    or query in employee.first_name.lower()
-                    or query in employee.last_name_f.lower()
-                    or query in employee.last_name_m.lower()
-                    or query in employee.position_rel.name.lower()
-                    or query in employee.municipality_rel.name.lower()
-            ) if query else True
-
-            # Position filter
-            matches_position = (
-                employee.position_id == selected_position_id
-                if selected_position_id is not None else True
-            )
-
-            # Municipality filter
-            matches_municipality = (
-                employee.municipality_id == selected_municipality_id
-                if selected_municipality_id is not None else True
-            )
-
-            # Employee type filter (BASE/HONORARY)
-            matches_type = (
-                employee.employee_type.upper() == selected_type
-                if selected_type is not None else True
-            )
-
-            # Add employee if all conditions match
-            if matches_text and matches_position and matches_municipality and matches_type:
-                filtered.append(employee)
-
+    def _apply_filter(self):
+        filtered = self._compute_filtered_employees()
         self._fill_table(filtered)
 
     def _on_row_selected(self) -> None:
@@ -594,6 +557,66 @@ class MainWindow(QMainWindow):
             }
         )
         self.chart_window.show()
+
+    def _compute_filtered_employees(self) -> List[Employee]:
+        """Return the list of employees after applying all filters."""
+        query = self.search_edit.text().strip().lower()
+        selected_position_id = self.position_filter.currentData()
+        selected_municipality_id = self.municipality_filter.currentData()
+        selected_type = self.type_filter.currentData()
+
+        filtered = []
+
+        for e in self._employees_cache:
+
+            matches_text = (
+                    query in str(e.nss).lower()
+                    or query in e.first_name.lower()
+                    or query in e.last_name_f.lower()
+                    or query in e.last_name_m.lower()
+                    or query in e.position_rel.name.lower()
+                    or query in e.municipality_rel.name.lower()
+            ) if query else True
+
+            matches_position = e.position_id == selected_position_id if selected_position_id else True
+            matches_municipality = e.municipality_id == selected_municipality_id if selected_municipality_id else True
+            matches_type = e.employee_type.upper() == selected_type if selected_type else True
+
+            if matches_text and matches_position and matches_municipality and matches_type:
+                filtered.append(e)
+
+        return filtered
+
+    def _export_filtered_csv(self):
+        """
+        Export filtered employees to CSV using the EmployeeExportService.
+        UI is only responsible for: picking file, showing messages, sending data.
+        """
+
+        filtered = self._compute_filtered_employees()
+
+        if not filtered:
+            QMessageBox.information(self, "No data", "No employees match the current filters.")
+            return
+
+        # Ask user for path
+        from PyQt6.QtWidgets import QFileDialog
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Filtered Employees",
+            "filtered_employees.csv",
+            "CSV Files (*.csv)"
+        )
+
+        if not file_path:
+            return
+
+        # Delegate to service
+        try:
+            self._export_service.export_to_csv(filtered, file_path)
+            QMessageBox.information(self, "Success", f"File saved:\n{file_path}")
+        except Exception as exc:
+            QMessageBox.critical(self, "Export error", str(exc))
 
     def _show_info(self, message: str) -> None:
         QMessageBox.information(self, "Info", message)
